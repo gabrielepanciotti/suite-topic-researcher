@@ -1,0 +1,10 @@
+services:
+  topic-researcher:
+    build:
+      context: ..
+      dockerfile: deploy/backend.Dockerfile
+      target: prod
+    environment:
+      PORT: "10052"
+    ports:
+      - "${TOPIC_RESEARCHER_PORT:-10052}:10052"

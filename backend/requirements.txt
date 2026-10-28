@@ -1,0 +1,9 @@
+fastapi
+# Starlette's TestClient uses this compatibility transport in the current FastAPI stack.
+httpx2
+# suite_core.instances (registro istanze, importato dal checkout di Life) ne ha bisogno.
+filelock
+uvicorn[standard]
+# The node owns its data: Alembic scaffold in backend/migrations, asyncpg driver.
+alembic
+asyncpg
