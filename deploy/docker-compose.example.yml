@@ -1,5 +1,5 @@
 services:
-  topic-researcher:
+  topic-researcher-backend:
     build:
       context: ..
       dockerfile: deploy/backend.Dockerfile

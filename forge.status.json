@@ -1,0 +1,26 @@
+{
+  "node": "topicResearcher",
+  "type": "fastapi-app",
+  "parent": "learn",
+  "stages": {
+    "scaffold": "ok",
+    "graph": "ok",
+    "ports": "ok",
+    "git": "ok",
+    "conform": "ok",
+    "venv": "ok",
+    "link": "ok",
+    "docs": "ok",
+    "tooling": "pending",
+    "brain": "pending",
+    "go-live": "pending",
+    "dod": "pending"
+  },
+  "manifest": [
+    "tooling: write the `tooling` grants block in node.config and run `apply`",
+    "brain: semina lo scheletro-vero (guida-utente + poche note-seme verificate), poi `brain-gate --mode block` deve uscire 0",
+    "go-live: `python -m suite_core.nodes go-live <repo>` (DB+docker+HTTP200)",
+    "dod: itera `python -m suite_core.nodes dod-check <repo>` finché 9/9 (no 🔴/🟡)"
+  ],
+  "note": "Non in produzione. Nessun frontend, nessun DB in uso: vedi .claude/docs/api.md per le rotte `finder` mancanti."
+}

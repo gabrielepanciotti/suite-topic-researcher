@@ -22,7 +22,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends build-essential
 COPY backend/requirements.txt ./backend/requirements.txt
 RUN pip install --no-cache-dir -r backend/requirements.txt
 COPY backend/ ./backend/
+# The backend reads its per-role `vista` block from node.config (Life#185/#228).
+COPY node.config ./node.config
 RUN pip install --no-cache-dir /app/backend/vendor/suite-backend-core
+RUN pip install --no-cache-dir /app/backend/vendor/suite-tools
 # The commit the image was built from, for a health endpoint to report. A
 # build-arg, not `COPY .git`: Docker's implicit ignore drops .git from the
 # context. deploy/build.sh passes the real SHA; unset it stays "unknown" —
@@ -38,7 +41,7 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
 
 # ---------------------------------------------------------------- prod stage
 FROM base AS prod
-CMD ["sh", "-c", "exec uvicorn topic_researcher_backend.app:app --host 0.0.0.0 --port 10052"]
+CMD ["sh", "-c", "alembic upgrade head && exec uvicorn topic_researcher_backend.app:app --host 0.0.0.0 --port 10052"]
 
 # ----------------------------------------------------------------- dev stage
 FROM base AS dev
@@ -52,4 +55,4 @@ FROM base AS dev
 # correctly, but the response stayed unchanged until the .pyc expired).
 ENV WATCHFILES_FORCE_POLLING=true \
     PYTHONPYCACHEPREFIX=/tmp/pycache
-CMD ["sh", "-c", "exec uvicorn topic_researcher_backend.app:app --host 0.0.0.0 --port 10052 --reload --reload-dir /app/backend"]
+CMD ["sh", "-c", "alembic upgrade head && exec uvicorn topic_researcher_backend.app:app --host 0.0.0.0 --port 10052 --reload --reload-dir /app/backend"]

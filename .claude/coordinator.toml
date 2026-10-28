@@ -1,0 +1,15 @@
+# Manifesto Coordinator di TopicResearcher.
+# Schema: Coordinator/docs/telegram-project-framework.md
+#
+# Nessun bot e nessun gruppo Telegram proprio: nessun blocco [telegram] e nessun
+# `group_chat_id`. Il nodo si raggiunge dal menu del bot radice del Coordinator
+# (come ContentExtractor, che non dichiara un bot "learn").
+#
+# Nessuna [[capability]] e nessun [routing]: il backend non ha comandi da
+# esporre su Telegram. La ricerca si lancia via HTTP (`POST /api/research`, con
+# `instance` obbligatoria) o da terminale con `python -m suite_learn_core
+# research`; una capability che la invocasse dovrebbe dichiarare l'istanza e
+# oggi non c'e' un contratto per passarla dal menu.
+# Da aggiungere qui, quando esisteranno: una capability di avvio ricerca, e una
+# [[notification]] con `gate = "python -m suite_learn_core overview --threshold N"`
+# per la coda piena (richiede un gruppo, quindi un `group_chat_id`).

@@ -68,7 +68,7 @@ fi
 # instead of being a syntax error (a backend-only node has no @suite/*, a
 # frontend-only node has no suite-*).
 SUITE_PACKAGES=""
-SUITE_PY_PACKAGES="suite-backend-core"
+SUITE_PY_PACKAGES="suite-backend-core suite-tools"
 
 # ------------------------------------------------------ backend: python sources
 # Deliberately FIRST, before the npm section. The two halves are independent,
@@ -87,8 +87,12 @@ SUITE_PY_PACKAGES="suite-backend-core"
 # upstream cannot survive as a stale leftover inside the image.
 PY_VENDOR_DIR="$NODE_DIR/backend/vendor"
 for DIST in $SUITE_PY_PACKAGES; do
-  # suite-backend-core -> <life>/packages/backend-core (same mapping as linker.py)
-  PKG_DIR="$LIFE_ROOT/packages/${DIST#suite-}"
+  # suite-backend-core -> <life>/packages/backend-core (same mapping as linker.py);
+  # suite-tools is the suite_tools module of the suite_core distribution (packages/shared).
+  case "$DIST" in
+    suite-tools) PKG_DIR="$LIFE_ROOT/packages/shared" ;;
+    *) PKG_DIR="$LIFE_ROOT/packages/${DIST#suite-}" ;;
+  esac
   [ -f "$PKG_DIR/pyproject.toml" ] || { echo "ERROR: python package '$DIST' not found in $PKG_DIR" >&2; exit 1; }
 
   DEST="$PY_VENDOR_DIR/$DIST"
@@ -121,9 +125,9 @@ VENDOR_DIR="$NODE_DIR/frontend/vendor"
 NODE_IMAGE="${SUITE_NODE_IMAGE:-node:20-alpine}"
 
 # Docker Desktop on Windows receives native paths, while the script runs under
-# Git Bash (POSIX paths like /d/srv/Life). Convert the HOST side of each bind
+# Git Bash (POSIX paths like /c/<cartella>/Life). Convert the HOST side of each bind
 # mount and stop MSYS from rewriting the CONTAINER side (/src, /vendor) into a
-# Windows path: `docker run -v /d/srv/Life/packages:/src` otherwise becomes
+# Windows path: `docker run -v /c/<cartella>/Life/packages:/src` otherwise becomes
 # a path inside the Git for Windows install dir, which fails on a clean Windows clone.
 to_host_path() {
   if command -v cygpath >/dev/null 2>&1; then
@@ -198,6 +202,9 @@ for PKG in $SUITE_PACKAGES; do
       -e npm_config_cache=/tmp/.npm -e HOME=/tmp \
       "$NODE_IMAGE" sh -c "$PACK_STEPS"
   fi
+  # The Life commit the tarball was packed from: dod-check compares it with master.
+  git -C "$LIFE_ROOT" log -1 --format=%H -- "packages/$PKG" >"$VENDOR_DIR/suite-$PKG.source" 2>/dev/null \
+    || rm -f "$VENDOR_DIR/suite-$PKG.source"
   echo "✓ frontend/vendor/suite-$PKG.tgz ready"
 done
 
